@@ -7,14 +7,6 @@ import OpenAI from 'openai';
 // Initialiser le client OpenAI
 const openai = new OpenAI();
 
-export const config = {
-    api: {
-        bodyParser: {
-            sizeLimit: '10mb',
-        },
-    },
-};
-
 export async function POST(req: NextRequest) {
   const cookieStore = cookies();
 
