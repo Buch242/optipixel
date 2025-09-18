@@ -49,8 +49,12 @@ export default function HomePage() {
 
       const data: OptimizationResult = await response.json();
       setResult(data);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) { // On remplace 'any' par 'unknown'
+      if (err instanceof Error) {
+        setError(err.message); // On s'assure que 'err' est bien une Erreur avant d'accéder à .message
+      } else {
+        setError('An unknown error occurred');
+      }
     } finally {
       setIsLoading(false);
     }
