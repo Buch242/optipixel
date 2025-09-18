@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import sharp from 'sharp';
 import OpenAI from 'openai';
@@ -18,7 +18,7 @@ export const config = {
 export async function POST(req: NextRequest) {
   const cookieStore = cookies();
 
-  // Création du client Supabase pour le serveur
+  // Création du client Supabase pour le serveur avec une configuration plus complète
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -26,6 +26,16 @@ export async function POST(req: NextRequest) {
       cookies: {
         get(name: string) {
           return cookieStore.get(name)?.value;
+        },
+        // NOTE: Les fonctions set et remove sont requises par la librairie pour être complètes,
+        // même si nous ne les utilisons pas pour écrire des cookies dans cette route spécifique.
+        // Les laisser vides est la bonne pratique ici.
+        set(name: string, value: string, options: CookieOptions) {
+          // Dans une API Route Next.js, on ne peut pas modifier les cookies de la requête.
+          // Cette fonction reste ici pour la compatibilité des types.
+        },
+        remove(name: string, options: CookieOptions) {
+          // Idem que pour la fonction set.
         },
       },
     }
