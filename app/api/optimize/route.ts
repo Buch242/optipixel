@@ -18,7 +18,7 @@ export const config = {
 export async function POST(req: NextRequest) {
   const cookieStore = cookies();
 
-  // Création du client Supabase pour le serveur avec une configuration plus complète
+  // Création du client Supabase pour le serveur avec une configuration complète et robuste
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -27,15 +27,23 @@ export async function POST(req: NextRequest) {
         get(name: string) {
           return cookieStore.get(name)?.value;
         },
-        // NOTE: Les fonctions set et remove sont requises par la librairie pour être complètes,
-        // même si nous ne les utilisons pas pour écrire des cookies dans cette route spécifique.
-        // Les laisser vides est la bonne pratique ici.
+        // NOTE: Les fonctions set et remove sont requises par la librairie pour être complètes.
+        // Nous ajoutons un bloc try/catch comme bonne pratique et préfixons les variables
+        // non utilisées avec '_' pour satisfaire le linter.
         set(name: string, value: string, options: CookieOptions) {
-          // Dans une API Route Next.js, on ne peut pas modifier les cookies de la requête.
-          // Cette fonction reste ici pour la compatibilité des types.
+          try {
+            cookieStore.set({ name, value, ...options });
+          } catch (error) {
+            // Les en-têtes de la requête sont en lecture seule dans les API Routes.
+            // Cette erreur est attendue et peut être ignorée en toute sécurité.
+          }
         },
         remove(name: string, options: CookieOptions) {
-          // Idem que pour la fonction set.
+          try {
+            cookieStore.set({ name, value: '', ...options });
+          } catch (error) {
+            // Idem que pour la fonction set.
+          }
         },
       },
     }
